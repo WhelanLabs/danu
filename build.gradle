@@ -1,0 +1,84 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "de.undercouch:gradle-download-task:5.4.0"
+    }
+}
+
+plugins {
+    id 'base' // Apply the base plugin for basic task support
+}
+
+apply plugin: "de.undercouch.download" // Correctly apply the plugin
+
+def downloadDir = file("download")
+def installerImageDir = file("installer_image")
+def filesToDownload = [
+    "apache-nutch-1.20-bin.zip": "https://dlcdn.apache.org/nutch/1.20/apache-nutch-1.20-bin.zip",
+    "hadoop-3.4.1.tar.gz": "https://www.apache.org/dyn/closer.cgi/hadoop/common/hadoop-3.4.1/hadoop-3.4.1.tar.gz",
+    "winutils.exe": "https://github.com/cdarlint/winutils/raw/refs/heads/master/hadoop-3.3.6/bin/winutils.exe",
+    "hadoop.dll": "https://github.com/cdarlint/winutils/raw/refs/heads/master/hadoop-3.3.6/bin/hadoop.dll",
+    "solr-9.7.0.tgz": "https://dlcdn.apache.org/solr/solr/9.7.0/solr-9.7.0.tgz"
+]
+
+// Ensure the download directory exists
+task prepareDownloadDir {
+    doLast {
+        if (!downloadDir.exists()) {
+            downloadDir.mkdirs()
+        }
+    }
+}
+
+// Ensure the installer image directory exists
+task prepareInstallerImageDir {
+    doLast {
+        if (!installerImageDir.exists()) {
+            installerImageDir.mkdirs()
+        }
+    }
+}
+
+// Define tasks for each file to download
+filesToDownload.each { fileName, url ->
+    tasks.register("download${fileName.capitalize()}", de.undercouch.gradle.tasks.download.Download) {
+        onlyIf {
+            // Skip download if file already exists
+            !file("${downloadDir}/${fileName}").exists()
+        }
+        src url
+        dest file("${downloadDir}/${fileName}")
+    }
+}
+
+// Task to decompress files
+task decompressFiles {
+    dependsOn prepareInstallerImageDir, "downloadApache-nutch-1.20-bin.zip"
+    doLast {
+        def zipFile = file("${downloadDir}/apache-nutch-1.20-bin.zip")
+        if (zipFile.exists() && zipFile.length() > 0) {
+            try {
+                copy {
+                    from zipTree(zipFile)
+                    into installerImageDir
+                }
+            } catch (Exception e) {
+                throw new GradleException("Failed to decompress ${zipFile}: ${e.message}")
+            }
+        } else {
+            throw new GradleException("File ${zipFile} does not exist or is empty.")
+        }
+    }
+}
+
+// Aggregate task to download all files
+task downloadAll {
+    dependsOn filesToDownload.keySet().collect { "download${it.capitalize()}" } // Explicitly depend on individual download tasks
+}
+
+// Build installer task
+task buildInstaller {
+    dependsOn downloadAll, decompressFiles
+}

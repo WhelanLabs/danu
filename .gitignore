@@ -19,3 +19,9 @@ gradle-app.setting
 .project
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
+
+# ignore the third party download contents
+download/
+
+# ignore the directory where the installer image is being built
+installer_image/
