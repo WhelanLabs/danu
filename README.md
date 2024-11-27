@@ -1,2 +1,2 @@
 # danu
-windows based search plus RAG
+Windows-based search plus RAG.
