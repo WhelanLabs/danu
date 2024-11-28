@@ -55,21 +55,38 @@ filesToDownload.each { fileName, url ->
 
 // Task to decompress files
 task decompressFiles {
-    dependsOn prepareInstallerImageDir, "downloadApache-nutch-1.20-bin.zip"
+    dependsOn prepareInstallerImageDir, "downloadApache-nutch-1.20-bin.zip", "downloadHadoop-3.4.1.tar.gz"
     doLast {
-        def zipFile = file("${downloadDir}/apache-nutch-1.20-bin.zip")
-        if (zipFile.exists() && zipFile.length() > 0) {
+        // Decompress Nutch zip file
+        def nutchZipFile = file("${downloadDir}/apache-nutch-1.20-bin.zip")
+        if (nutchZipFile.exists() && nutchZipFile.length() > 0) {
             try {
                 copy {
-                    from zipTree(zipFile)
+                    from zipTree(nutchZipFile)
                     into installerImageDir
                 }
             } catch (Exception e) {
-                throw new GradleException("Failed to decompress ${zipFile}: ${e.message}")
+                throw new GradleException("Failed to decompress ${nutchZipFile}: ${e.message}")
             }
         } else {
-            throw new GradleException("File ${zipFile} does not exist or is empty.")
+            throw new GradleException("File ${nutchZipFile} does not exist or is empty.")
         }
+		
+        // Decompress Hadoop tar.gz file
+        def hadoopTarFile = file("${downloadDir}/hadoop-3.4.1.tar.gz")
+        if (hadoopTarFile.exists() && hadoopTarFile.length() > 0) {
+            try {
+                copy {
+                    from tarTree(resources.gzip(hadoopTarFile))
+                    into installerImageDir
+                }
+            } catch (Exception e) {
+                throw new GradleException("Failed to decompress ${hadoopTarFile}: ${e.message}")
+            }
+        } else {
+            throw new GradleException("File ${hadoopTarFile} does not exist or is empty.")
+        }
+
     }
 }
 
@@ -81,4 +98,13 @@ task downloadAll {
 // Build installer task
 task buildInstaller {
     dependsOn downloadAll, decompressFiles
+}
+
+// Clean task to delete the installer image directory
+task cleanInstallerImage {
+    doLast {
+        if (installerImageDir.exists()) {
+            installerImageDir.deleteDir()
+        }
+    }
 }
