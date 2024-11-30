@@ -15,12 +15,14 @@ apply plugin: "de.undercouch.download" // Correctly apply the plugin
 
 def downloadDir = file("download")
 def installerImageDir = file("installer_image")
+def solrHome = file("installer_image/solr-8.11.4")
+def nutchRuntimeHome = file("installer_image/apache-nutch-1.20")
 def filesToDownload = [
     "apache-nutch-1.20-bin.zip": "https://dlcdn.apache.org/nutch/1.20/apache-nutch-1.20-bin.zip",
     "hadoop-3.4.1.tar.gz": "https://www.apache.org/dyn/closer.cgi/hadoop/common/hadoop-3.4.1/hadoop-3.4.1.tar.gz",
     "winutils.exe": "https://github.com/cdarlint/winutils/raw/refs/heads/master/hadoop-3.3.6/bin/winutils.exe",
     "hadoop.dll": "https://github.com/cdarlint/winutils/raw/refs/heads/master/hadoop-3.3.6/bin/hadoop.dll",
-    "solr-9.7.0.tgz": "https://dlcdn.apache.org/solr/solr/9.7.0/solr-9.7.0.tgz"
+    "solr-8.11.4.zip": "https://dlcdn.apache.org/lucene/solr/8.11.4/solr-8.11.4.zip"
 ]
 
 // Ensure the download directory exists
@@ -87,6 +89,20 @@ task decompressFiles {
             throw new GradleException("File ${hadoopTarFile} does not exist or is empty.")
         }
 
+        // Decompress Solr zip file
+        def solrZipFile = file("${downloadDir}/solr-8.11.4.zip")
+        if (solrZipFile.exists() && solrZipFile.length() > 0) {
+            try {
+                copy {
+                    from zipTree(solrZipFile)
+                    into installerImageDir
+                }
+            } catch (Exception e) {
+                throw new GradleException("Failed to decompress ${solrZipFile}: ${e.message}")
+            }
+        } else {
+            throw new GradleException("File ${solrZipFile} does not exist or is empty.")
+        }
     }
 }
 
@@ -95,9 +111,72 @@ task downloadAll {
     dependsOn filesToDownload.keySet().collect { "download${it.capitalize()}" } // Explicitly depend on individual download tasks
 }
 
+// Task to set up the Solr Nutch core
+task setupSolrCore {
+    dependsOn prepareInstallerImageDir
+    doLast {
+        def nutchConfigSet = new File(solrHome, "server/solr/configsets/nutch")
+        def defaultConfigSet = new File(solrHome, "server/solr/configsets/_default")
+        def nutchSchemaFile = new File(nutchRuntimeHome, "plugins/indexer-solr/schema.xml")
+
+        // Create the Nutch Solr core directory
+        if (!nutchConfigSet.exists()) {
+            nutchConfigSet.mkdirs()
+        }
+
+        // Copy default Solr config to the Nutch core directory
+        copy {
+            from defaultConfigSet
+            into nutchConfigSet
+        }
+
+        // Copy Nutch schema.xml
+        if (nutchSchemaFile.exists()) {
+            copy {
+                from nutchSchemaFile
+                into new File(nutchConfigSet, "conf")
+            }
+        } else {
+            throw new GradleException("Nutch schema.xml not found at ${nutchSchemaFile}")
+        }
+
+        // Remove managed-schema if present
+        def managedSchema = new File(nutchConfigSet, "conf/managed-schema")
+        if (managedSchema.exists()) {
+            managedSchema.delete()
+        }
+
+        println "Solr Nutch core setup completed."
+    }
+}
+
+// Task to start Solr server
+task startSolr {
+    doLast {
+        exec {
+            workingDir solrHome
+            // commandLine "${solrHome}/bin/solr", "start"
+			commandLine "${solrHome}/bin/solr.cmd", "start" // this is the windows version of the command
+        }
+    }
+}
+
+// Task to create the Nutch Solr core
+task createNutchCore {
+    dependsOn setupSolrCore, startSolr
+    doLast {
+        exec {
+            workingDir solrHome
+            // commandLine "${solrHome}/bin/solr", "create", "-c", "nutch", "-d", "server/solr/configsets/nutch/conf"
+			commandLine "${solrHome}/bin/solr.cmd", "create", "-c", "nutch", "-d", "server/solr/configsets/nutch/conf"
+        }
+    }
+}
+
 // Build installer task
 task buildInstaller {
-    dependsOn downloadAll, decompressFiles
+    // dependsOn downloadAll, decompressFiles
+	dependsOn downloadAll, decompressFiles, createNutchCore
 }
 
 // Clean task to delete the installer image directory

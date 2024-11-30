@@ -9,6 +9,8 @@
 # WIP
 ##############################################
 
+* create nutch core in solr
+
 * Add nutch initial configuration
 
 
