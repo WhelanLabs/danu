@@ -173,10 +173,42 @@ task createNutchCore {
     }
 }
 
+task copyNutchContents(type: Copy) {
+    // Specify the source directory
+    from 'src/nutch'
+
+    // Specify the destination directory
+    into 'installer_image/apache-nutch-1.20'
+
+    // Print a message after the task is completed
+    doLast {
+        println "All contents from 'src/nutch' have been copied to 'installer_image/apache-nutch-1.20'."
+    }
+}
+
+task addHadoopWinFiles(type: Copy) {
+    // Define the source and destination for the files
+    from('downlaod') {
+        include 'hadoop.dll', 'winutils.exe'
+    }
+
+    // Specify the destination directory
+    into 'installer_image/hadoop-3.4.1/bin'
+
+    // Print a message after the task is completed
+    doLast {
+        println "Files 'hadoop.dll' and 'winutils.exe' have been copied to 'installer_image/hadoop-3.4.1/bin'."
+    }
+}
+
 // Build installer task
 task buildInstaller {
     // dependsOn downloadAll, decompressFiles
-	dependsOn downloadAll, decompressFiles, createNutchCore
+	// dependsOn downloadAll, decompressFiles, copyNutchContents
+	dependsOn downloadAll
+    downloadAll.finalizedBy decompressFiles
+    decompressFiles.finalizedBy addHadoopWinFiles
+	addHadoopWinFiles.finalizedBy copyNutchContents
 }
 
 // Clean task to delete the installer image directory

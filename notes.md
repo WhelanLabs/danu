@@ -16,6 +16,12 @@ cd ${danu}
 installer_image\solr-8.11.4\bin\solr.cmd stop  -p 8983
 
 
+## Run commands
+
+### Crawl the seed sites
+using cygwin...
+cd [danu]/installer_image/apache-nutch-1.20
+bin/crawl -i -D http.agent.name="DanuCrawler" /path/to/urls/seed.txt /path/to/crawl-data 3
 
 
 
