@@ -225,6 +225,7 @@ task buildInstaller {
     downloadAll.finalizedBy decompressFiles
     decompressFiles.finalizedBy addHadoopWinFiles
 	addHadoopWinFiles.finalizedBy copyNutchContents
+	copyNutchContents.finalizedBy createNutchCore
 }
 
 // Clean task to delete the installer image directory

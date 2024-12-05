@@ -9,11 +9,13 @@ Releases are listed in ascending cronological order.
 
 ## Done
 
-### Initial release (1.0)
+### POC #1 release (0.1)
 
 * initial structure and loading of third-party components
 
 * have the decompression of downloads only down if not already done.
+
+* build bash script to mimic eventual crawl script
 
 ## WIP
 
@@ -21,17 +23,21 @@ Releases are listed in ascending cronological order.
   use the build script to configure solr to include a nutch core
   as described in the nutch tutorial.
 
+* set up crawl to write to solr
 
 ## Backlog
 
-* build bash script to mimic eventual install script
+* build initial testing framework
 
-* build bash script to mimic eventual crawl script
+* start admin UI framework
 
+* start user UI framework
 
+* create startup script
 
+* create shutdown script
 
-
+* create "build script" to track third-party software CVEs
 
 ## Deep backlog (non-critical cards)
 
