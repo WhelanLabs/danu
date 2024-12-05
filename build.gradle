@@ -61,50 +61,66 @@ task decompressFiles {
     doLast {
         // Decompress Nutch zip file
         def nutchZipFile = file("${downloadDir}/apache-nutch-1.20-bin.zip")
-        if (nutchZipFile.exists() && nutchZipFile.length() > 0) {
-            try {
-                copy {
-                    from zipTree(nutchZipFile)
-                    into installerImageDir
+        def nutchExtractedDir = file("${installerImageDir}/apache-nutch-1.20") // Expected directory after extraction
+        if (!nutchExtractedDir.exists()) { // Only decompress if directory does not exist
+            if (nutchZipFile.exists() && nutchZipFile.length() > 0) {
+                try {
+                    copy {
+                        from zipTree(nutchZipFile)
+                        into installerImageDir
+                    }
+                } catch (Exception e) {
+                    throw new GradleException("Failed to decompress ${nutchZipFile}: ${e.message}")
                 }
-            } catch (Exception e) {
-                throw new GradleException("Failed to decompress ${nutchZipFile}: ${e.message}")
+            } else {
+                throw new GradleException("File ${nutchZipFile} does not exist or is empty.")
             }
         } else {
-            throw new GradleException("File ${nutchZipFile} does not exist or is empty.")
+            println "Nutch files already decompressed, skipping."
         }
-		
+
         // Decompress Hadoop tar.gz file
         def hadoopTarFile = file("${downloadDir}/hadoop-3.4.1.tar.gz")
-        if (hadoopTarFile.exists() && hadoopTarFile.length() > 0) {
-            try {
-                copy {
-                    from tarTree(resources.gzip(hadoopTarFile))
-                    into installerImageDir
+        def hadoopExtractedDir = file("${installerImageDir}/hadoop-3.4.1") // Expected directory after extraction
+        if (!hadoopExtractedDir.exists()) { // Only decompress if directory does not exist
+            if (hadoopTarFile.exists() && hadoopTarFile.length() > 0) {
+                try {
+                    copy {
+                        from tarTree(resources.gzip(hadoopTarFile))
+                        into installerImageDir
+                    }
+                } catch (Exception e) {
+                    throw new GradleException("Failed to decompress ${hadoopTarFile}: ${e.message}")
                 }
-            } catch (Exception e) {
-                throw new GradleException("Failed to decompress ${hadoopTarFile}: ${e.message}")
+            } else {
+                throw new GradleException("File ${hadoopTarFile} does not exist or is empty.")
             }
         } else {
-            throw new GradleException("File ${hadoopTarFile} does not exist or is empty.")
+            println "Hadoop files already decompressed, skipping."
         }
 
         // Decompress Solr zip file
         def solrZipFile = file("${downloadDir}/solr-8.11.4.zip")
-        if (solrZipFile.exists() && solrZipFile.length() > 0) {
-            try {
-                copy {
-                    from zipTree(solrZipFile)
-                    into installerImageDir
+        def solrExtractedDir = file("${installerImageDir}/solr-8.11.4") // Expected directory after extraction
+        if (!solrExtractedDir.exists()) { // Only decompress if directory does not exist
+            if (solrZipFile.exists() && solrZipFile.length() > 0) {
+                try {
+                    copy {
+                        from zipTree(solrZipFile)
+                        into installerImageDir
+                    }
+                } catch (Exception e) {
+                    throw new GradleException("Failed to decompress ${solrZipFile}: ${e.message}")
                 }
-            } catch (Exception e) {
-                throw new GradleException("Failed to decompress ${solrZipFile}: ${e.message}")
+            } else {
+                throw new GradleException("File ${solrZipFile} does not exist or is empty.")
             }
         } else {
-            throw new GradleException("File ${solrZipFile} does not exist or is empty.")
+            println "Solr files already decompressed, skipping."
         }
     }
 }
+
 
 // Aggregate task to download all files
 task downloadAll {
@@ -188,7 +204,7 @@ task copyNutchContents(type: Copy) {
 
 task addHadoopWinFiles(type: Copy) {
     // Define the source and destination for the files
-    from('downlaod') {
+    from('download') {
         include 'hadoop.dll', 'winutils.exe'
     }
 
