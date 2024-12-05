@@ -19,7 +19,7 @@ def solrHome = file("installer_image/solr-8.11.4")
 def nutchRuntimeHome = file("installer_image/apache-nutch-1.20")
 def filesToDownload = [
     "apache-nutch-1.20-bin.zip": "https://dlcdn.apache.org/nutch/1.20/apache-nutch-1.20-bin.zip",
-    "hadoop-3.4.1.tar.gz": "https://www.apache.org/dyn/closer.cgi/hadoop/common/hadoop-3.4.1/hadoop-3.4.1.tar.gz",
+    "hadoop-3.3.6.tar.gz": "https://dlcdn.apache.org/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz",
     "winutils.exe": "https://github.com/cdarlint/winutils/raw/refs/heads/master/hadoop-3.3.6/bin/winutils.exe",
     "hadoop.dll": "https://github.com/cdarlint/winutils/raw/refs/heads/master/hadoop-3.3.6/bin/hadoop.dll",
     "solr-8.11.4.zip": "https://dlcdn.apache.org/lucene/solr/8.11.4/solr-8.11.4.zip"
@@ -57,7 +57,7 @@ filesToDownload.each { fileName, url ->
 
 // Task to decompress files
 task decompressFiles {
-    dependsOn prepareInstallerImageDir, "downloadApache-nutch-1.20-bin.zip", "downloadHadoop-3.4.1.tar.gz"
+    dependsOn prepareInstallerImageDir, "downloadApache-nutch-1.20-bin.zip", "downloadHadoop-3.3.6.tar.gz"
     doLast {
         // Decompress Nutch zip file
         def nutchZipFile = file("${downloadDir}/apache-nutch-1.20-bin.zip")
@@ -80,8 +80,8 @@ task decompressFiles {
         }
 
         // Decompress Hadoop tar.gz file
-        def hadoopTarFile = file("${downloadDir}/hadoop-3.4.1.tar.gz")
-        def hadoopExtractedDir = file("${installerImageDir}/hadoop-3.4.1") // Expected directory after extraction
+        def hadoopTarFile = file("${downloadDir}/hadoop-3.3.6.tar.gz")
+        def hadoopExtractedDir = file("${installerImageDir}/hadoop-3.3.6") // Expected directory after extraction
         if (!hadoopExtractedDir.exists()) { // Only decompress if directory does not exist
             if (hadoopTarFile.exists() && hadoopTarFile.length() > 0) {
                 try {
@@ -209,11 +209,11 @@ task addHadoopWinFiles(type: Copy) {
     }
 
     // Specify the destination directory
-    into 'installer_image/hadoop-3.4.1/bin'
+    into 'installer_image/hadoop-3.3.6/bin'
 
     // Print a message after the task is completed
     doLast {
-        println "Files 'hadoop.dll' and 'winutils.exe' have been copied to 'installer_image/hadoop-3.4.1/bin'."
+        println "Files 'hadoop.dll' and 'winutils.exe' have been copied to 'installer_image/hadoop-3.3.6/bin'."
     }
 }
 
