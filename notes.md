@@ -21,7 +21,7 @@ bin/crawl -i -D http.agent.name="DanuCrawler" /path/to/urls/seed.txt /path/to/cr
 
 ### Start solr
 cd ${danu}
-installer_image/solr-8.11.4/bin/solr start
+installer_image\solr-8.11.4\bin\solr.cmd start
 
 ### access solr
 http://localhost:8983/solr/#/

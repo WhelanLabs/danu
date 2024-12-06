@@ -169,13 +169,18 @@ task setupSolrCore {
 // Task to start Solr server
 task startSolr {
     doLast {
+        def solrBin = new File(solrHome, "bin${File.separator}solr").absolutePath
+        println "Current working directory: ${solrHome}"
+        println "Command to execute: ${solrBin} start"
+        
         exec {
             workingDir solrHome
-            // commandLine "${solrHome}/bin/solr", "start"
-			commandLine "${solrHome}/bin/solr", "start" // this is the windows version of the command
+            commandLine solrBin, "start"
         }
     }
 }
+
+
 
 // Task to create the Nutch Solr core
 task createNutchCore {
@@ -184,7 +189,7 @@ task createNutchCore {
         exec {
             workingDir solrHome
             // commandLine "${solrHome}/bin/solr", "create", "-c", "nutch", "-d", "server/solr/configsets/nutch/conf"
-			commandLine "${solrHome}/bin/solr.cmd", "create", "-c", "nutch", "-d", "server/solr/configsets/nutch/conf"
+			commandLine "bin/solr.cmd", "create", "-c", "nutch", "-d", "server/solr/configsets/nutch/conf"
         }
     }
 }
@@ -219,7 +224,7 @@ task addHadoopWinFiles(type: Copy) {
 
 // Build installer task
 task buildInstaller {
-    dependsOn downloadAll, decompressFiles, addHadoopWinFiles, copyNutchContents //, createNutchCore
+    dependsOn downloadAll, decompressFiles, addHadoopWinFiles, copyNutchContents, createNutchCore
 
     // Task relationships for sequential execution
     downloadAll {
@@ -232,9 +237,9 @@ task buildInstaller {
         finalizedBy copyNutchContents
     }
     copyNutchContents {
-        // finalizedBy createNutchCore
+        finalizedBy createNutchCore
     }
-	// createNutchCore
+	createNutchCore
 }
 
 
