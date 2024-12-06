@@ -172,7 +172,7 @@ task startSolr {
         exec {
             workingDir solrHome
             // commandLine "${solrHome}/bin/solr", "start"
-			commandLine "${solrHome}/bin/solr.cmd", "start" // this is the windows version of the command
+			commandLine "${solrHome}/bin/solr", "start" // this is the windows version of the command
         }
     }
 }
@@ -219,14 +219,24 @@ task addHadoopWinFiles(type: Copy) {
 
 // Build installer task
 task buildInstaller {
-    // dependsOn downloadAll, decompressFiles
-	// dependsOn downloadAll, decompressFiles, copyNutchContents
-	dependsOn downloadAll
-    downloadAll.finalizedBy decompressFiles
-    decompressFiles.finalizedBy addHadoopWinFiles
-	addHadoopWinFiles.finalizedBy copyNutchContents
-	copyNutchContents.finalizedBy createNutchCore
+    dependsOn downloadAll, decompressFiles, addHadoopWinFiles, copyNutchContents //, createNutchCore
+
+    // Task relationships for sequential execution
+    downloadAll {
+        finalizedBy decompressFiles
+    }
+    decompressFiles {
+        finalizedBy addHadoopWinFiles
+    }
+    addHadoopWinFiles {
+        finalizedBy copyNutchContents
+    }
+    copyNutchContents {
+        // finalizedBy createNutchCore
+    }
+	// createNutchCore
 }
+
 
 // Clean task to delete the installer image directory
 task cleanInstallerImage {
