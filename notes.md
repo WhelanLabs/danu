@@ -3,7 +3,7 @@
 ## Build commands
 
 ### Build the installer (main task)
-gradle buildInstaller --info
+gradle buildInstaller --info --stacktrace
 
 ### Clean the installer image contents (does not delete downloads)
 gradle cleanInstallerImage --info

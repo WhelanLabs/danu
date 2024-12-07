@@ -169,14 +169,19 @@ task setupSolrCore {
 // Task to start Solr server
 task startSolr {
     doLast {
-        def solrBin = new File(solrHome, "bin${File.separator}solr").absolutePath
-        println "Current working directory: ${solrHome}"
-        println "Command to execute: ${solrBin} start"
+        def solrBin = new File(solrHome, "bin${File.separator}solr.cmd").absolutePath
+        println "Starting Solr from directory: ${solrHome}"
+        println "Executing command: ${solrBin} start -f"
         
-        exec {
-            workingDir solrHome
-            commandLine solrBin, "start"
-        }
+        // Use ProcessBuilder to start Solr in the background
+        def processBuilder = new ProcessBuilder("cmd", "/c", "\"${solrBin}\" start -f")
+        processBuilder.directory(new File(solrHome.toString())) // Corrected line: ensure solrHome is treated as a String
+        def process = processBuilder.start()
+        
+        // Optionally, capture the output and errors
+        process.waitForAsync() // Allows the Gradle task to continue without waiting for Solr to stop
+        
+        println "Solr has been started in the background."
     }
 }
 
@@ -186,10 +191,13 @@ task startSolr {
 task createNutchCore {
     dependsOn setupSolrCore, startSolr
     doLast {
+        def solrBin = new File(solrHome, "bin${File.separator}solr.cmd").absolutePath
+        println "Current working directory: ${solrHome}"
+        println "Command to execute: ${solrBin} create -p 8983 -c nutch -d ${solrHome}/server/solr/configsets/nutch/conf"
+        
         exec {
             workingDir solrHome
-            // commandLine "${solrHome}/bin/solr", "create", "-c", "nutch", "-d", "server/solr/configsets/nutch/conf"
-			commandLine "bin/solr.cmd", "create", "-c", "nutch", "-d", "server/solr/configsets/nutch/conf"
+            commandLine solrBin, "create", "-p", "8983", "-c", "nutch", "-d", "${solrHome}/server/solr/configsets/nutch/conf"
         }
     }
 }
