@@ -167,21 +167,49 @@ task setupSolrCore {
 }
 
 // Task to start Solr server
+import java.net.HttpURLConnection
+import java.net.URL
+
 task startSolr {
     doLast {
         def solrBin = new File(solrHome, "bin${File.separator}solr.cmd").absolutePath
         println "Starting Solr from directory: ${solrHome}"
         println "Executing command: ${solrBin} start -f"
         
-        // Use ProcessBuilder to start Solr in the background
+        // Start Solr in the background
         def processBuilder = new ProcessBuilder("cmd", "/c", "\"${solrBin}\" start -f")
-        processBuilder.directory(new File(solrHome.toString())) // Corrected line: ensure solrHome is treated as a String
+        processBuilder.directory(new File(solrHome.toString()))
         def process = processBuilder.start()
+
+        println "Solr has been started. Waiting for it to be ready..."
         
-        // Optionally, capture the output and errors
-        process.waitForAsync() // Allows the Gradle task to continue without waiting for Solr to stop
-        
-        println "Solr has been started in the background."
+        // Health check to confirm Solr is ready
+        def solrUrl = "http://localhost:8983/solr/"
+        def retries = 20
+        def interval = 5000 // milliseconds
+
+        while (retries > 0) {
+            try {
+                def connection = (HttpURLConnection) new URL(solrUrl).openConnection()
+                connection.setRequestMethod("GET")
+                connection.setConnectTimeout(2000)
+                connection.setReadTimeout(2000)
+                connection.connect()
+                
+                if (connection.responseCode == 200) {
+                    println "Solr is ready!"
+                    return
+                }
+            } catch (Exception e) {
+                // Ignore exceptions during retry attempts
+            }
+
+            retries--
+            Thread.sleep(interval)
+            println "Waiting for Solr to be ready... (Remaining retries: $retries)"
+        }
+
+        throw new GradleException("Solr failed to start within the expected time.")
     }
 }
 
@@ -192,15 +220,28 @@ task createNutchCore {
     dependsOn setupSolrCore, startSolr
     doLast {
         def solrBin = new File(solrHome, "bin${File.separator}solr.cmd").absolutePath
-        println "Current working directory: ${solrHome}"
+        println "Creating the Nutch Solr core..."
         println "Command to execute: ${solrBin} create -p 8983 -c nutch -d ${solrHome}/server/solr/configsets/nutch/conf"
         
+        // First: Execute the create command
         exec {
             workingDir solrHome
             commandLine solrBin, "create", "-p", "8983", "-c", "nutch", "-d", "${solrHome}/server/solr/configsets/nutch/conf"
         }
+
+        println "Solr core creation complete. Proceeding to stop Solr..."
+        
+        // Second: Execute the stop command after create completes
+        exec {
+            workingDir solrHome
+            commandLine solrBin, "stop", "-p", "8983"
+        }
+
+        println "Solr has been stopped."
     }
 }
+
+
 
 task copyNutchContents(type: Copy) {
     // Specify the source directory
