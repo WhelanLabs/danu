@@ -214,30 +214,53 @@ task startSolr {
 }
 
 
-
 // Task to create the Nutch Solr core
 task createNutchCore {
     dependsOn setupSolrCore, startSolr
+	
+    def stopOutput = new ByteArrayOutputStream()
+	
     doLast {
         def solrBin = new File(solrHome, "bin${File.separator}solr.cmd").absolutePath
-        println "Creating the Nutch Solr core..."
-        println "Command to execute: ${solrBin} create -p 8983 -c nutch -d ${solrHome}/server/solr/configsets/nutch/conf"
-        
-        // First: Execute the create command
+
+        println "creating nutch core..."
         exec {
             workingDir solrHome
-            commandLine solrBin, "create", "-p", "8983", "-c", "nutch", "-d", "${solrHome}/server/solr/configsets/nutch/conf"
+            commandLine "cmd.exe", "/c", "createNutchCore.bat"
         }
 
-        println "Solr core creation complete. Proceeding to stop Solr..."
-        
-        // Second: Execute the stop command after create completes
-        exec {
-            workingDir solrHome
-            commandLine solrBin, "stop", "-p", "8983"
-        }
+        def solrUrl = "http://localhost:8983/solr/admin/cores?action=UNLOAD&core=nutch&deleteIndex=true&deleteDataDir=true"
 
-        println "Solr has been stopped."
+        println "Stopping Solr via API: ${solrUrl}"
+        try {
+            URL url = new URL(solrUrl)
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection()
+            connection.setRequestMethod("POST")
+            connection.setDoOutput(true)
+
+            int responseCode = connection.responseCode
+            println "Response Code: ${responseCode}"
+
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                println "Solr stopped successfully."
+            } else {
+                println "Failed to stop Solr. Response message: ${connection.responseMessage}"
+            }
+        } catch (Exception e) {
+            println "Error while stopping Solr: ${e.message}"
+        }
+		
+        println "finished createNutchCore."
+    }
+}
+
+
+import java.net.HttpURLConnection
+import java.net.URL
+
+task stopSolr {
+    doLast {
+
     }
 }
 
@@ -256,6 +279,21 @@ task copyNutchContents(type: Copy) {
     }
 }
 
+
+task copySolrContents(type: Copy) {
+    // Specify the source directory
+    from 'src/solr'
+
+    // Specify the destination directory
+    into 'installer_image/solr-8.11.4'
+
+    // Print a message after the task is completed
+    doLast {
+        println "All contents from 'src/solr' have been copied to 'installer_image/solr-8.11.4'."
+    }
+}
+
+
 task addHadoopWinFiles(type: Copy) {
     // Define the source and destination for the files
     from('download') {
@@ -271,9 +309,10 @@ task addHadoopWinFiles(type: Copy) {
     }
 }
 
+
 // Build installer task
 task buildInstaller {
-    dependsOn downloadAll, decompressFiles, addHadoopWinFiles, copyNutchContents, createNutchCore
+    dependsOn downloadAll, decompressFiles, addHadoopWinFiles, copyNutchContents, copySolrContents, createNutchCore
 
     // Task relationships for sequential execution
     downloadAll {
@@ -283,6 +322,9 @@ task buildInstaller {
         finalizedBy addHadoopWinFiles
     }
     addHadoopWinFiles {
+        finalizedBy copySolrContents
+    }
+    copySolrContents {
         finalizedBy copyNutchContents
     }
     copyNutchContents {

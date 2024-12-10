@@ -27,6 +27,8 @@ Releases are listed in ascending cronological order.
 
 ## Backlog
 
+* move build-time bat scripts out of install image location. (use "/build_scripts/solr" instead)
+
 * build initial testing framework
 
 * start admin UI framework
