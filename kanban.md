@@ -23,7 +23,12 @@ Releases are listed in ascending cronological order.
   use the build script to configure solr to include a nutch core
   as described in the nutch tutorial.
 
+* create startup script
+
+* create shutdown script
+
 * set up crawl to write to solr
+  setup the runtime crawl script to work with Solr.
 
 ## Backlog
 
@@ -35,14 +40,20 @@ Releases are listed in ascending cronological order.
 
 * start user UI framework
 
-* create startup script
-
-* create shutdown script
 
 * create "build script" to track third-party software CVEs
 
 ## Deep backlog (non-critical cards)
 
+* The gradle code for SOlr start and stop is a clusterfuck.  Clean it up.
+
+* clean up the gradle directory structure. some ideas:
+  - "/src/main/install/{nutch, solr, hadoop}/"
+  - "/src/main/runtime_scripts/"
+  - "/build/install_image/"
+  - "/src/docs/"
+  - /src/test/"
+  
 * Have the decompression to the install image result in a version agnostic disk image -
   for example, replace "[danu]\installer_image\hadoop-3.4.1\" with
   "danu\installer_image\hadoop\".

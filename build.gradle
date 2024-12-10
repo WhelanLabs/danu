@@ -1,3 +1,8 @@
+import java.net.HttpURLConnection
+import java.net.URL
+import java.net.Socket
+import java.io.OutputStreamWriter
+
 buildscript {
     repositories {
         mavenCentral()
@@ -167,9 +172,6 @@ task setupSolrCore {
 }
 
 // Task to start Solr server
-import java.net.HttpURLConnection
-import java.net.URL
-
 task startSolr {
     doLast {
         def solrBin = new File(solrHome, "bin${File.separator}solr.cmd").absolutePath
@@ -229,41 +231,33 @@ task createNutchCore {
             commandLine "cmd.exe", "/c", "createNutchCore.bat"
         }
 
-        def solrUrl = "http://localhost:8983/solr/admin/cores?action=UNLOAD&core=nutch&deleteIndex=true&deleteDataDir=true"
+        println "Terminating Solr process..."
+        def osName = System.getProperty("os.name").toLowerCase()
 
-        println "Stopping Solr via API: ${solrUrl}"
-        try {
-            URL url = new URL(solrUrl)
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection()
-            connection.setRequestMethod("POST")
-            connection.setDoOutput(true)
+        def solrPid = ""
+        if (osName.contains("win")) {
+            // Windows: Use WMIC or TaskList
+            solrPid = "wmic process where \"commandline like '%start.jar%'\" get processid".execute().text.trim()
+        } else {
+            // Unix/Linux: Use pgrep
+            solrPid = "pgrep -f 'start.jar'".execute().text.trim()
+        }
 
-            int responseCode = connection.responseCode
-            println "Response Code: ${responseCode}"
-
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                println "Solr stopped successfully."
+        if (solrPid) {
+            println "Found Solr PID: ${solrPid}. Killing process..."
+            if (osName.contains("win")) {
+                "taskkill /PID ${solrPid} /F".execute().waitFor()
             } else {
-                println "Failed to stop Solr. Response message: ${connection.responseMessage}"
+                "kill -9 ${solrPid}".execute().waitFor()
             }
-        } catch (Exception e) {
-            println "Error while stopping Solr: ${e.message}"
+            println "Solr process terminated."
+        } else {
+            println "Solr process not found."
         }
 		
         println "finished createNutchCore."
     }
 }
-
-
-import java.net.HttpURLConnection
-import java.net.URL
-
-task stopSolr {
-    doLast {
-
-    }
-}
-
 
 
 task copyNutchContents(type: Copy) {
