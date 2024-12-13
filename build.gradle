@@ -230,30 +230,6 @@ task createNutchCore {
             workingDir solrHome
             commandLine "cmd.exe", "/c", "createNutchCore.bat"
         }
-
-        println "Terminating Solr process..."
-        def osName = System.getProperty("os.name").toLowerCase()
-
-        def solrPid = ""
-        if (osName.contains("win")) {
-            // Windows: Use WMIC or TaskList
-            solrPid = "wmic process where \"commandline like '%start.jar%'\" get processid".execute().text.trim()
-        } else {
-            // Unix/Linux: Use pgrep
-            solrPid = "pgrep -f 'start.jar'".execute().text.trim()
-        }
-
-        if (solrPid) {
-            println "Found Solr PID: ${solrPid}. Killing process..."
-            if (osName.contains("win")) {
-                "taskkill /PID ${solrPid} /F".execute().waitFor()
-            } else {
-                "kill -9 ${solrPid}".execute().waitFor()
-            }
-            println "Solr process terminated."
-        } else {
-            println "Solr process not found."
-        }
 		
         println "finished createNutchCore."
     }

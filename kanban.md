@@ -23,16 +23,17 @@ Releases are listed in ascending cronological order.
   use the build script to configure solr to include a nutch core
   as described in the nutch tutorial.
 
-* create startup script
+* create runtime startup script
 
-* create shutdown script
+* create runtime shutdown script
 
-* set up crawl to write to solr
+* set up runtime crawl to write to solr
   setup the runtime crawl script to work with Solr.
 
 ## Backlog
 
 * move build-time bat scripts out of install image location. (use "/build_scripts/solr" instead)
+  - createNutchCore.bat
 
 * build initial testing framework
 
@@ -40,6 +41,11 @@ Releases are listed in ascending cronological order.
 
 * start user UI framework
 
+* Populate the readme.md for the project, including:
+  1. describe the purpose and supported use cases
+  2. describe the "why" of the project
+  3. describe how to build it
+  4. describe the architecture
 
 * create "build script" to track third-party software CVEs
 
