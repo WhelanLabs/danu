@@ -280,8 +280,8 @@ task addHadoopWinFiles(type: Copy) {
 }
 
 
-// Build installer task
-task buildInstaller {
+// Create Base Disk Image task
+task createBaseDiskImage {
     dependsOn downloadAll, decompressFiles, addHadoopWinFiles, copyNutchContents, copySolrContents, createNutchCore
 
     // Task relationships for sequential execution

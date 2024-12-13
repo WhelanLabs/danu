@@ -3,7 +3,11 @@
 ## Build commands
 
 ### Build the installer (main task)
-gradle buildInstaller --info --stacktrace
+build.bat
+
+Don't directly call "gradle createBaseDiskImage --info --stacktrace" because gradle has a hard time shutting
+down Solr after it has added the Nutch core. For this reason, the gradle command has been wrappered in
+a BAT script to include a post-build command to shutdown Solr after creating the base disk image.
 
 ### Clean the installer image contents (does not delete downloads)
 gradle cleanInstallerImage --info
