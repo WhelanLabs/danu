@@ -17,15 +17,19 @@ Releases are listed in ascending cronological order.
 
 * build bash script to mimic eventual crawl script
 
-## WIP
-
 * create nutch core in solr -
   use the build script to configure solr to include a nutch core
   as described in the nutch tutorial.
+  
+* create initial runtime startup script
 
-* create runtime startup script
+* create initial runtime shutdown script
 
-* create runtime shutdown script
+## WIP
+
+* set project license to AGPL.
+
+* build installer
 
 * set up runtime crawl to write to solr
   setup the runtime crawl script to work with Solr.

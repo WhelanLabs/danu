@@ -1,0 +1,43 @@
+Outfile "DanuAI_Installer.exe"
+InstallDir "$PROGRAMFILES\DanuAI"
+InstallDirRegKey HKLM "Software\DanuAI" "InstallPath"
+
+Name "DanuAI Installer"
+
+Page custom WelcomePage
+Page Directory
+Page InstFiles
+
+Function WelcomePage
+  MessageBox MB_OK "Welcome to the DanuAI Installer!\r\n\r\nApplication: DanuAI\r\nVersion: 1.0\r\nLicense: AGPL 3.0\r\n\r\nBy proceeding, you agree to install this application under the terms of the AGPL 3.0 license."
+FunctionEnd
+
+Function ValidateSpaceInPath
+  StrCpy $0 "$INSTDIR"
+  ${If} $0 ~= " \"
+    MessageBox MB_ICONEXCLAMATION "The installation directory cannot contain spaces. Please choose another directory."
+    Abort
+  ${EndIf}
+FunctionEnd
+
+Section "Install"
+
+  ; Notify user and validate directory path
+  Call ValidateSpaceInPath
+
+  ; Set installation directory
+  SetOutPath "$INSTDIR"
+
+  ; Copy files
+  File /r "installer_image\*"
+
+  ; Create registry entry
+  WriteRegStr HKLM "Software\DanuAI" "InstallPath" "$INSTDIR"
+
+SectionEnd
+
+Section -PostInstall
+
+  ; Additional normal actions post-install
+
+SectionEnd

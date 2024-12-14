@@ -312,3 +312,44 @@ task cleanInstallerImage {
         }
     }
 }
+
+
+// Gradle task to create NSIS installer
+task createInstaller(type: Exec) {
+    // Ensure the output directory exists
+    doFirst {
+        file('./out/').mkdirs()
+    }
+
+    // Command to run NSIS compiler (makensis)
+    commandLine 'makensis', 
+        // Specify the output directory for the installer
+        '/DOUTPUTDIR=./out/',
+        // Path to the NSIS script
+        './instal.nsis'
+
+    // Ensure the task fails if the NSIS compilation fails
+    ignoreExitValue false
+
+    // Optional: Add description for clarity when running gradle tasks
+    description 'Creates an installer using NSIS'
+    group 'distribution'
+
+    // Specify inputs and outputs for proper incremental build support
+    inputs.file './instal.nsis'
+    outputs.dir './out/'
+
+    // Optional: Only run if NSIS script or related files have changed
+    doFirst {
+        println "Creating installer with NSIS..."
+    }
+
+    // Optional: Add error handling
+    doLast { 
+        if (executable == null) {
+            throw new GradleException('NSIS (makensis) not found. Please ensure NSIS is installed and in PATH.')
+        }
+    }
+}
+
+

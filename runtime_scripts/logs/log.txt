@@ -1,0 +1,1 @@
+runtime_scripts/startup.sh: line 17: ../solr-8.11.4/bin/solr.cmd: No such file or directory
