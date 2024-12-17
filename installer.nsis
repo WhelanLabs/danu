@@ -13,27 +13,33 @@ Function WelcomePage
 FunctionEnd
 
 Function ValidateSpaceInPath
-  StrCpy $0 "$INSTDIR"
-  ${If} $0 ~= " \"
-    MessageBox MB_ICONEXCLAMATION "The installation directory cannot contain spaces. Please choose another directory."
-    Abort
-  ${EndIf}
+    StrCpy $0 "$INSTDIR"
+    StrLen $1 $0
+    StrCpy $2 0  ; Counter
+
+    SpaceCheckLoop:
+        StrCpy $3 $0 1 $2  ; Get character at current position
+        StrCmp $3 " " HasSpace  ; If character is space, jump to HasSpace
+        IntOp $2 $2 + 1   ; Increment counter
+        IntCmp $2 $1 NoSpaceFound  ; If we've checked all characters, exit
+        Goto SpaceCheckLoop
+
+    HasSpace:
+        MessageBox MB_ICONEXCLAMATION "The installation directory cannot contain spaces. Please choose another directory."
+        Abort
+
+    NoSpaceFound:
+        ; Path is fine, continue with installation
 FunctionEnd
 
 Section "Install"
-
-  ; Notify user and validate directory path
   Call ValidateSpaceInPath
-
-  ; Set installation directory
   SetOutPath "$INSTDIR"
-
-  ; Copy files
-  File /r "installer_image\*"
-
-  ; Create registry entry
+  
+  ; Use cmd to leverage robocopy's long path handling
+  ExecWait 'cmd.exe /c robocopy "installer_image" "$INSTDIR" /E /XL'
+  
   WriteRegStr HKLM "Software\DanuAI" "InstallPath" "$INSTDIR"
-
 SectionEnd
 
 Section -PostInstall

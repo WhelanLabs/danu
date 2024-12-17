@@ -326,7 +326,7 @@ task createInstaller(type: Exec) {
         // Specify the output directory for the installer
         '/DOUTPUTDIR=./out/',
         // Path to the NSIS script
-        './instal.nsis'
+        './installer.nsis'
 
     // Ensure the task fails if the NSIS compilation fails
     ignoreExitValue false
@@ -336,7 +336,7 @@ task createInstaller(type: Exec) {
     group 'distribution'
 
     // Specify inputs and outputs for proper incremental build support
-    inputs.file './instal.nsis'
+    inputs.file './installer.nsis'
     outputs.dir './out/'
 
     // Optional: Only run if NSIS script or related files have changed

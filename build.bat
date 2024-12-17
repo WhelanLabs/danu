@@ -21,7 +21,6 @@ if not "%ERRORLEVEL%"=="0" (
     exit /b %ERRORLEVEL%
 )
 
-
 REM Create installer_image\solr (createInstaller)
 echo Running: %GRADLE_BUILD_INSTALLER_CMD%
 %GRADLE_BUILD_INSTALLER_CMD%
@@ -31,8 +30,4 @@ if not "%ERRORLEVEL%"=="0" (
 )
 
 REM Indicate script completion
-:: Set the text color to green (Color 02 for green text on black background)
-color 02
 echo Build script completed successfully.
-:: Reset the color to default before exiting
-color 07
