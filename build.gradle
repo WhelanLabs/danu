@@ -48,6 +48,7 @@ task prepareInstallerImageDir {
     }
 }
 
+
 // Define tasks for each file to download
 filesToDownload.each { fileName, url ->
     tasks.register("download${fileName.capitalize()}", de.undercouch.gradle.tasks.download.Download) {
@@ -59,6 +60,7 @@ filesToDownload.each { fileName, url ->
         dest file("${downloadDir}/${fileName}")
     }
 }
+
 
 // Task to decompress files
 task decompressFiles {
@@ -104,6 +106,16 @@ task decompressFiles {
             println "Hadoop files already decompressed, skipping."
         }
 
+        // delete the hadoop doc files
+        def dirToDelete = file('installer_image/hadoop-3.3.6/share/doc')
+        if (dirToDelete.exists()) {
+            delete(dirToDelete)
+            println "Deleted: ${dirToDelete}"
+        } else {
+            println "Directory does not exist: ${dirToDelete}"
+        }
+		
+		
         // Decompress Solr zip file
         def solrZipFile = file("${downloadDir}/solr-8.11.4.zip")
         def solrExtractedDir = file("${installerImageDir}/solr-8.11.4") // Expected directory after extraction

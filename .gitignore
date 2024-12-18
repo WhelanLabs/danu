@@ -23,5 +23,8 @@ gradle-app.setting
 # ignore the third party download contents
 download/
 
+# ignore build outputs
+out/
+
 # ignore the directory where the installer image is being built
 installer_image/

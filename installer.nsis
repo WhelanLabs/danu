@@ -1,4 +1,4 @@
-Outfile "DanuAI_Installer.exe"
+Outfile "./out/DanuAI_Installer.exe"
 InstallDir "$PROGRAMFILES\DanuAI"
 InstallDirRegKey HKLM "Software\DanuAI" "InstallPath"
 
@@ -9,7 +9,7 @@ Page Directory
 Page InstFiles
 
 Function WelcomePage
-  MessageBox MB_OK "Welcome to the DanuAI Installer!\r\n\r\nApplication: DanuAI\r\nVersion: 1.0\r\nLicense: AGPL 3.0\r\n\r\nBy proceeding, you agree to install this application under the terms of the AGPL 3.0 license."
+  MessageBox MB_OK "Welcome to the DanuAI Installer! $\nApplication: DanuAI $\nVersion: 1.0 $\nLicense: AGPL 3.0 $\n $\nBy proceeding, you agree to install this application under the terms of the AGPL 3.0 license."
 FunctionEnd
 
 Function ValidateSpaceInPath
@@ -35,11 +35,9 @@ FunctionEnd
 Section "Install"
   Call ValidateSpaceInPath
   SetOutPath "$INSTDIR"
+  File /r "installer_image\*"
   
-  ; Use cmd to leverage robocopy's long path handling
-  ExecWait 'cmd.exe /c robocopy "installer_image" "$INSTDIR" /E /XL'
-  
-  WriteRegStr HKLM "Software\DanuAI" "InstallPath" "$INSTDIR"
+  WriteRegStr HKCU "Software\DanuAI" "InstallPath" "$INSTDIR"
 SectionEnd
 
 Section -PostInstall

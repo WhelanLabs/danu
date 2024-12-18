@@ -34,4 +34,8 @@ http://localhost:8983/solr/#/
 cd ${danu}
 installer_image\solr-8.11.4\bin\solr.cmd stop  -p 8983
 
+# temp commands (used while still developing...)
+
+## Build the installer
+makensis ./out/installer.nsis
 
