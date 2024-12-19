@@ -31,6 +31,12 @@ cd ${danu_install_dir}
 #### Admin access
 http://localhost:8983/solr/#/
 
+#### Admin - index overview
+http://localhost:8983/solr/#/nutch/core-overview
+
+This URL will show the total pages that have been indexed. The page count is shown by
+the "num docs" property.
+
 #### sample query
 http://localhost:8983/solr/nutch/select?q=apache
 

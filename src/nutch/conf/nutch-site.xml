@@ -5,18 +5,24 @@
 
 <configuration>
 
-<!-- HTTP properties -->
+  <property>
+    <name>http.agent.name</name>
+    <value>DanuCrawler</value>
+  </property>
 
-<property>
-  <name>http.agent.name</name>
-  <value>Danu Spider</value>
-</property>
-
-<!-- plugin properties -->
-
-<property>
-  <name>plugin.includes</name>
-  <value>protocol-http|urlfilter-(regex|validator)|parse-(html|tika)|index-(basic|anchor)|indexer-solr|scoring-opic|urlnormalizer-(pass|regex|basic)</value>
-</property>
+  <property>
+    <name>storage.data.store.class</name>
+    <value>org.apache.gora.solr.store.SolrStore</value>
+  </property>
+  
+  <property>
+    <name>solr.server.url</name>
+    <value>http://localhost:8983/solr/nutch</value>
+  </property>
+	
+  <property>
+    <name>plugin.includes</name>
+    <value>protocol-http|urlfilter-(regex|validator)|parse-(html|tika)|index-(basic|anchor)|indexer-solr|scoring-opic|urlnormalizer-(pass|regex|basic)</value>
+  </property>
 
 </configuration>
