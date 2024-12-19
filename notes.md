@@ -18,24 +18,18 @@ gradle downloadAll
 
 ## Run commands
 
-### Crawl the seed sites
-using cygwin...
-cd [danu]/installer_image/apache-nutch-1.20
-bin/crawl -i -D http.agent.name="DanuCrawler" /path/to/urls/seed.txt /path/to/crawl-data 3
+### Start Danu (Cygwin)
+cd ${danu_install_dir}
+./startup.sh
 
-### Start solr (windows)
-cd ${danu}
-installer_image\solr-8.11.4\bin\solr.cmd start
+### Crawl the seed sites (Cygwin)
+cd ${danu_install_dir}
+./crawl.sh
 
 ### access solr
 http://localhost:8983/solr/#/
 
-### shutdown solr (windows)
-cd ${danu}
-installer_image\solr-8.11.4\bin\solr.cmd stop  -p 8983
-
-# temp commands (used while still developing...)
-
-## Build the installer
-makensis ./out/installer.nsis
+### shutdown Danu (Cygwin)
+cd ${danu_install_dir}
+./shutdown.sh
 
