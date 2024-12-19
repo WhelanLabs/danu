@@ -7,6 +7,7 @@ Name "DanuAI Installer"
 Page custom WelcomePage
 Page Directory
 Page InstFiles
+UninstPage InstFiles
 
 Function WelcomePage
   MessageBox MB_OK "Welcome to the DanuAI Installer! $\nApplication: DanuAI $\nVersion: 1.0 $\nLicense: AGPL 3.0 $\n $\nBy proceeding, you agree to install this application under the terms of the AGPL 3.0 license."
@@ -37,11 +38,21 @@ Section "Install"
   SetOutPath "$INSTDIR"
   File /r "installer_image\*"
   
-  WriteRegStr HKCU "Software\DanuAI" "InstallPath" "$INSTDIR"
+  ; Write registry key for the install directory
+  WriteRegStr HKLM "Software\DanuAI" "InstallPath" "$INSTDIR"
+
+  ; Write uninstaller to the install directory
+  WriteUninstaller "$INSTDIR\Uninstall.exe"
 SectionEnd
 
 Section -PostInstall
-
   ; Additional normal actions post-install
+SectionEnd
 
+Section "Uninstall"
+  ; Remove installed files
+  RMDir /r "$INSTDIR"
+
+  ; Remove registry key
+  DeleteRegKey HKLM "Software\DanuAI"
 SectionEnd

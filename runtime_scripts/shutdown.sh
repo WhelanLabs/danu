@@ -14,6 +14,6 @@ cd "$(dirname "$0")"
 mkdir -p logs
 
 # Call the Solr command to stop the server on port 8983 and write the output to logs/log.txt
-../solr-$SOLR_VERSION/bin/solr.cmd stop -p 8983 > logs/log.txt 2>&1
+./solr-$SOLR_VERSION/bin/solr.cmd stop -p 8983 > logs/log.txt 2>&1
 
 echo server stopped

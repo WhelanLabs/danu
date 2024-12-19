@@ -4,7 +4,7 @@
 
 # Change the current directory to the nutch directory
 cd "$(dirname "$0")"
-cd ../installer_image/apache-nutch-1.20/
+cd ./apache-nutch-1.20/
 
 LINUX_HADOOP_HOME="${PWD}/../hadoop-3.3.6/"
 WINDOWS_HADOOP_HOME=$(cygpath -w ${LINUX_HADOOP_HOME})

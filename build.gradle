@@ -20,6 +20,7 @@ apply plugin: "de.undercouch.download" // Correctly apply the plugin
 
 def downloadDir = file("download")
 def installerImageDir = file("installer_image")
+def outDir = file("out")
 def solrHome = file("installer_image/solr-8.11.4")
 def nutchRuntimeHome = file("installer_image/apache-nutch-1.20")
 def filesToDownload = [
@@ -248,6 +249,16 @@ task createNutchCore {
 }
 
 
+task copyRuntimeScripts(type: Copy) {
+    from 'runtime_scripts' // Source directory
+    into 'installer_image' // Destination directory
+    include '**/*' // Include all files and subdirectories
+    doLast {
+        println "Copied contents of runtime_scripts to installer_image."
+    }
+}
+
+
 task copyNutchContents(type: Copy) {
     // Specify the source directory
     from 'src/nutch'
@@ -292,17 +303,62 @@ task addHadoopWinFiles(type: Copy) {
 }
 
 
+// Utility method
+def getCommandVersion(command, regex) {
+    try {
+        def process = command.execute()
+        def output = new StringWriter()
+        process.consumeProcessErrorStream(output)
+        process.consumeProcessOutput(output, new StringWriter())
+        process.waitFor()
+        def matcher = (output.toString() =~ regex)
+        return matcher ? matcher[0][1] : null
+    } catch (Exception e) {
+        return null
+    }
+}
+
+// Task definition
+task checkEnvironment {
+    doLast {
+        def javaVersion = getCommandVersion("java -version", /version "(.*?)"/)
+        def nsisVersion = getCommandVersion("makensis /VERSION", /(.*?)\n/)
+
+        if (!(javaVersion?.startsWith("1.8"))) {
+            throw new GradleException("Java 1.8 is NOT installed or not accessible. Detected: ${javaVersion ?: 'None'}")
+        } else {
+            println "Java 1.8 is installed: $javaVersion"
+        }
+
+        if (!nsisVersion) {
+            throw new GradleException("NSIS is NOT installed or not accessible via the PATH.")
+        } else {
+            println "NSIS is installed: $nsisVersion"
+        }
+    }
+}
+
+
 // Create Base Disk Image task
 task createBaseDiskImage {
     dependsOn downloadAll, decompressFiles, addHadoopWinFiles, copyNutchContents, copySolrContents, createNutchCore
 
     // Task relationships for sequential execution
+	checkEnvironment {
+        finalizedBy prepareDownloadDir
+	}
+	prepareDownloadDir {
+        finalizedBy downloadAll
+	}
     downloadAll {
         finalizedBy decompressFiles
     }
     decompressFiles {
-        finalizedBy addHadoopWinFiles
+        finalizedBy copyRuntimeScripts
     }
+	copyRuntimeScripts {
+        finalizedBy addHadoopWinFiles
+	}
     addHadoopWinFiles {
         finalizedBy copySolrContents
     }
@@ -317,10 +373,14 @@ task createBaseDiskImage {
 
 
 // Clean task to delete the installer image directory
-task cleanInstallerImage {
+task cleanEnv {
     doLast {
         if (installerImageDir.exists()) {
             installerImageDir.deleteDir()
+        }
+		
+        if (outDir.exists()) {
+            outDir.deleteDir()
         }
     }
 }
