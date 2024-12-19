@@ -1,4 +1,22 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- Put site-specific property overrides in this file. -->
+
+<configuration>
+
+<!-- HTTP properties -->
+
 <property>
- <name>http.agent.name</name>
- <value>Danu Spider</value>
+  <name>http.agent.name</name>
+  <value>Danu Spider</value>
 </property>
+
+<!-- plugin properties -->
+
+<property>
+  <name>plugin.includes</name>
+  <value>protocol-http|urlfilter-(regex|validator)|parse-(html|tika)|index-(basic|anchor)|indexer-solr|scoring-opic|urlnormalizer-(pass|regex|basic)</value>
+</property>
+
+</configuration>

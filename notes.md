@@ -18,18 +18,23 @@ gradle downloadAll
 
 ## Run commands
 
-### Start Danu (Cygwin)
-cd ${danu_install_dir}
-./startup.sh
+### Start Danu (Windows)
+cd %danu_install_dir%
+startup.bat
 
 ### Crawl the seed sites (Cygwin)
 cd ${danu_install_dir}
 ./crawl.sh
 
 ### access solr
+
+#### Admin access
 http://localhost:8983/solr/#/
 
-### shutdown Danu (Cygwin)
-cd ${danu_install_dir}
-./shutdown.sh
+#### sample query
+http://localhost:8983/solr/nutch/select?q=apache
+
+### shutdown Danu (Windows)
+cd %danu_install_dir%
+./shutdown.bat
 
