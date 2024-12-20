@@ -25,29 +25,16 @@ Releases are listed in ascending cronological order.
 
 * create initial runtime shutdown script
 
-## WIP
-
 * set project license to AGPL.
 
 * build installer
 
 * set up runtime crawl to write to solr
   setup the runtime crawl script to work with Solr.
+  
+## WIP
 
-## Backlog
-
-* move build-time bat scripts out of install image location. (use "/build_scripts/solr" instead)
-  - createNutchCore.bat
-
-* build initial testing framework
-
-* start admin UI framework
-
-* start user UI framework
-
-* change crawl to be BAT based
-  Have a bat file with something like:
-  "%cygwindir%/bin/bash.exe" --login %DanuDir%/crawl.sh
+* build simple search page HTML
 
 * Populate the readme.md for the project, including:
   1. describe the purpose and supported use cases
@@ -55,11 +42,7 @@ Releases are listed in ascending cronological order.
   3. describe how to build it
   4. describe the architecture
 
-* create "build script" to track third-party software CVEs
-
-## Deep backlog (non-critical cards)
-
-* The gradle code for SOlr start and stop is a clusterfuck.  Clean it up.
+## Backlog
 
 * clean up the gradle directory structure. some ideas:
   - "/src/main/install/{nutch, solr, hadoop}/"
@@ -67,6 +50,31 @@ Releases are listed in ascending cronological order.
   - "/build/install_image/"
   - "/src/docs/"
   - /src/test/"
+  
+* move build-time bat scripts out of install image location. (use "/build_scripts/solr" instead)
+  - createNutchCore.bat
+
+* build initial testing framework
+
+* start admin web UI framework
+
+* start user web UI framework
+  - Make it similar to WLSEM in that it shows highlighted text in the results.
+  - Have it use the same process as the admin UI, but use a different port.
+
+* change crawl to be BAT based
+  Have a bat file with something like:
+  "%cygwindir%/bin/bash.exe" --login %DanuDir%/crawl.sh
+
+
+  
+* create "build script" to track third-party software CVEs
+
+## Deep backlog (non-critical cards)
+
+* The gradle code for Solr start and stop is a clusterfuck.  Clean it up.
+
+
   
 * Have the decompression to the install image result in a version agnostic disk image -
   for example, replace "[danu]\installer_image\hadoop-3.4.1\" with
