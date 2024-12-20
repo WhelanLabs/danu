@@ -44,6 +44,8 @@ Releases are listed in ascending cronological order.
 
 ## Backlog
 
+* build initial testing framework
+
 * clean up the gradle directory structure. some ideas:
   - "/src/main/install/{nutch, solr, hadoop}/"
   - "/src/main/runtime_scripts/"
@@ -53,8 +55,6 @@ Releases are listed in ascending cronological order.
   
 * move build-time bat scripts out of install image location. (use "/build_scripts/solr" instead)
   - createNutchCore.bat
-
-* build initial testing framework
 
 * start admin web UI framework
 
