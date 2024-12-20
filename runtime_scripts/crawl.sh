@@ -33,11 +33,4 @@ fi
 # Run the Nutch crawl command
 # bin/crawl $SEED_DIR $CRAWL_DIR $DEPTH -topN $TOP_N
 
-# bin/crawl -s ./urls ./crawl 5
-bin/nutch inject ./urls
-bin/nutch generate ./crawl
-bin/nutch fetch ./crawl
-bin/nutch parse ./crawl
-bin/nutch index ./crawl -solr http://localhost:8983/solr/nutch
-
-# curl http://localhost:8983/solr/nutch/update -d '<commit />' -H 'Content-Type: text/xml'
+bin/crawl -i -s urls crawl 2
