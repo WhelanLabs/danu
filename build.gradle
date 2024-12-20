@@ -151,7 +151,7 @@ task setupSolrCore {
     doLast {
         def nutchConfigSet = new File(solrHome, "server/solr/configsets/nutch")
         def defaultConfigSet = new File(solrHome, "server/solr/configsets/_default")
-        def nutchSchemaFile = new File(nutchRuntimeHome, "plugins/indexer-solr/schema.xml")
+        // def nutchSchemaFile = new File(nutchRuntimeHome, "plugins/indexer-solr/schema.xml")
 
         // Create the Nutch Solr core directory
         if (!nutchConfigSet.exists()) {
@@ -165,14 +165,15 @@ task setupSolrCore {
         }
 
         // Copy Nutch schema.xml
-        if (nutchSchemaFile.exists()) {
-            copy {
-                from nutchSchemaFile
-                into new File(nutchConfigSet, "conf")
-            }
-        } else {
-            throw new GradleException("Nutch schema.xml not found at ${nutchSchemaFile}")
-        }
+// JSW: lets try another way...
+//        if (nutchSchemaFile.exists()) {
+//            copy {
+//                from nutchSchemaFile
+//                into new File(nutchConfigSet, "conf")
+//            }
+//        } else {
+//            throw new GradleException("Nutch schema.xml not found at ${nutchSchemaFile}")
+//        }
 
         // Remove managed-schema if present
         def managedSchema = new File(nutchConfigSet, "conf/managed-schema")

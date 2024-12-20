@@ -45,6 +45,10 @@ Releases are listed in ascending cronological order.
 
 * start user UI framework
 
+* change crawl to be BAT based
+  Have a bat file with something like:
+  "%cygwindir%/bin/bash.exe" --login %DanuDir%/crawl.sh
+
 * Populate the readme.md for the project, including:
   1. describe the purpose and supported use cases
   2. describe the "why" of the project

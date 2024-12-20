@@ -38,7 +38,12 @@ This URL will show the total pages that have been indexed. The page count is sho
 the "num docs" property.
 
 #### sample query
-http://localhost:8983/solr/nutch/select?q=apache
+http://localhost:8983/solr/#/nutch/query
+
+This command brings up the Solr admin query page. A good query would be the following, which
+searches the "text" (AKA the FTS field) for the term "download":
+http://localhost:8983/solr/#/nutch/query?q=text:download
+
 
 ### shutdown Danu (Windows)
 cd %danu_install_dir%
