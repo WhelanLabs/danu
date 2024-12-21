@@ -32,9 +32,9 @@ Releases are listed in ascending cronological order.
 * set up runtime crawl to write to solr
   setup the runtime crawl script to work with Solr.
   
-## WIP
-
 * build simple search page HTML
+
+## WIP
 
 * Populate the readme.md for the project, including:
   1. describe the purpose and supported use cases
