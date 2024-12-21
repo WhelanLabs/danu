@@ -44,6 +44,13 @@ Releases are listed in ascending cronological order.
 
 ## Backlog
 
+* Launch pre-release Danu
+  - get domain
+  - switch project to new domain
+  - create github tag
+  - publish binary
+  - Announce to Nutch users mailing list.
+
 * build initial testing framework
 
 * clean up the gradle directory structure. some ideas:
