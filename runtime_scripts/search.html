@@ -85,7 +85,7 @@
         <form action="http://localhost:8983/solr/nutch/query" method="get">
             <input type="text" name="searchterm" placeholder="Enter search terms here" required>
             <input type="hidden" name="q" value="">
-            <input type="hidden" name="wt" value="xml">
+            <input type="hidden" name="wt" value="xml"> <!-- can have values of "xml", "json", or "html". -->
             <input type="hidden" name="tr" value="solr-results.xsl">
             <button type="submit" onclick="this.form.q.value='text:' + this.form.searchterm.value;">Search</button>
         </form>

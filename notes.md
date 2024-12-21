@@ -37,13 +37,15 @@ http://localhost:8983/solr/#/nutch/core-overview
 This URL will show the total pages that have been indexed. The page count is shown by
 the "num docs" property.
 
-#### sample query
+#### User query
+To brinng up a query page, use the HTML file provided at "[DanuAI]/search.html".
+
+#### Admin query
 http://localhost:8983/solr/#/nutch/query
 
 This command brings up the Solr admin query page. A good query would be the following, which
 searches the "text" (AKA the FTS field) for the term "download":
 http://localhost:8983/solr/#/nutch/query?q=text:download
-
 
 ### shutdown Danu (Windows)
 cd %danu_install_dir%
