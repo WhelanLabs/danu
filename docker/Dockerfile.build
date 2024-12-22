@@ -1,0 +1,21 @@
+FROM mcr.microsoft.com/windows/servercore:ltsc2022
+
+# Set up environment variables
+ENV GRADLE_HOME="C:\Gradle"
+ENV PATH="%GRADLE_HOME%\bin;%PATH%"
+ENV JAVA_HOME="C:\Program Files\Java\jdk-17"
+
+# Install prerequisites: Java, Gradle, and NSIS
+RUN powershell -Command \
+    choco install openjdk --version=17.0.8 -y && \
+    choco install gradle -y && \
+    Invoke-WebRequest -Uri https://sourceforge.net/projects/nsis/files/NSIS%203/3.10/nsis-3.10-setup.exe -OutFile nsis-setup.exe && \
+    Start-Process -FilePath .\nsis-setup.exe -ArgumentList '/S' -Wait && \
+    Remove-Item -Force .\nsis-setup.exe
+
+# Copy project files
+WORKDIR /app
+COPY . .
+
+# Run the build
+CMD ["cmd", "/c", "build.bat"]

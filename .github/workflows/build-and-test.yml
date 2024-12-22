@@ -1,0 +1,49 @@
+name: Build and Test Danu AI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    name: Build Danu AI
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build the project
+        run: |
+          docker build -t danu-build -f docker/Dockerfile.build .
+          docker run --name danu-build-container danu-build
+          docker cp danu-build-container:/out/DanuAI_Installer.exe ./DanuAI_Installer.exe
+          docker rm danu-build-container
+        shell: cmd
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: danu-installer
+          path: ./DanuAI_Installer.exe
+
+  test:
+    name: Test Installation and Runtime
+    runs-on: windows-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: danu-installer
+
+      - name: Test Installation and Runtime
+        run: |
+          docker build -t danu-run -f docker/Dockerfile.run .
+          docker run --name danu-run-container -v ${PWD}:/test danu-run
+          docker rm danu-run-container
+        shell: cmd

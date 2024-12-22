@@ -1,0 +1,17 @@
+FROM mcr.microsoft.com/windows/servercore:ltsc2022
+
+# Install Cygwin
+RUN powershell -Command \
+    Invoke-WebRequest -Uri https://cygwin.com/setup-x86_64.exe -OutFile cygwin-setup.exe && \
+    Start-Process -FilePath .\cygwin-setup.exe -ArgumentList '-q -P curl' -Wait && \
+    Remove-Item -Force .\cygwin-setup.exe
+
+# Copy the installer to the container
+WORKDIR /danu
+COPY DanuAI_Installer.exe .
+
+# Install the application
+RUN cmd /c "DanuAI_Installer.exe /S"
+
+# Default to running the application
+CMD ["cmd", "/c", "runtime_scripts/startup.bat"]
