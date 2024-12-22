@@ -34,13 +34,14 @@ Releases are listed in ascending cronological order.
   
 * build simple search page HTML
 
-## WIP
-
 * Populate the readme.md for the project, including:
   1. describe the purpose and supported use cases
   2. describe the "why" of the project
   3. describe how to build it
-  4. describe the architecture
+  
+## WIP
+
+* build initial testing framework
 
 ## Backlog
 
@@ -50,8 +51,6 @@ Releases are listed in ascending cronological order.
   - create github tag
   - publish binary
   - Announce to Nutch users mailing list.
-
-* build initial testing framework
 
 * clean up the gradle directory structure. some ideas:
   - "/src/main/install/{nutch, solr, hadoop}/"
