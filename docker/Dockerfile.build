@@ -33,10 +33,10 @@ RUN powershell -Command " \
 # Copy application files
 COPY . /app
 
-# Set JAVA_HOME and build with Gradle
-RUN $javaHomePath = (Get-ChildItem 'C:\Program Files\' -Directory | Where-Object { $_.Name -like 'OpenJDK*' }).FullName; \
-    if (-not $javaHomePath) { throw 'OpenJDK installation not found' }; \
-    [System.Environment]::SetEnvironmentVariable('JAVA_HOME', $javaHomePath, 'Machine'); \
-    [System.Environment]::SetEnvironmentVariable('Path', "$javaHomePath\bin;" + [System.Environment]::GetEnvironmentVariable('Path', 'Machine'), 'Machine'); \
-    gradle --version; \
-    gradle clean build
+# Set JAVA_HOME and build
+RUN $javaHomePath = (Get-ChildItem 'C:\Program Files\' -Directory | Where-Object { $_.Name -like 'OpenJDK*' }).FullName; `
+    if (-not $javaHomePath) { throw 'OpenJDK installation not found' }; `
+    [System.Environment]::SetEnvironmentVariable('JAVA_HOME', $javaHomePath, 'Machine'); `
+    [System.Environment]::SetEnvironmentVariable('Path', "$javaHomePath\bin;" + [System.Environment]::GetEnvironmentVariable('Path', 'Machine'), 'Machine'); `
+    gradle --version; `
+    .\build.bat
