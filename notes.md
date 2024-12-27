@@ -15,6 +15,10 @@ clean.bat
 ### download third-party software
 gradle downloadAll
 
+### testing the docker workflow jobs
+
+...
+
 
 ## Run commands
 

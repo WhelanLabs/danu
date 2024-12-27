@@ -59,18 +59,18 @@ The following tool must be installed and added to the system's PATH before runni
 Follow these steps to run Danu AI:
 
 1. Start the service:
-   ```bash
+   ```DOS
    cd [Danu]
    startup.bat
    ```
 
 2. Crawl target URLs and load them into the Danu database:
-   ```bash
+   ```DOS
    crawl.bat
    ```
 
 3. To stop the service:
-   ```bash
+   ```DOS
    shutdown.bat
    ```
 
