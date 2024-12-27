@@ -17,7 +17,22 @@ gradle downloadAll
 
 ### testing the docker workflow jobs
 
-...
+#### Build the installer
+docker build -f docker/Dockerfile.build -t danu-ai-build .
+docker run --rm -it danu-ai-build cmd
+
+⚠ ** Note:** By default, Docker uses the DNS settings from the host. If the host's DNS isn't working well with Docker, you can specify an alternative.
+
+1. Open Docker Desktop > Settings > Docker Engine.
+2. Add a custom DNS server configuration, such as Google's public DNS servers:
+json
+Copy code
+{
+  "dns": ["8.8.8.8", "8.8.4.4"]
+}
+3. Save the settings and restart Docker.
+
+#### 
 
 
 ## Run commands

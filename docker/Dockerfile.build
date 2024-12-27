@@ -1,30 +1,42 @@
 FROM mcr.microsoft.com/windows/servercore:ltsc2022
 WORKDIR /app
 
-# Install Chocolatey and refresh PATH
-RUN powershell.exe -Command \
+# Configure DNS and test connectivity
+RUN powershell -Command \
+    Set-DnsClientServerAddress -InterfaceAlias Ethernet* -ServerAddresses ("8.8.8.8", "8.8.4.4"); \
+    Write-Host 'Testing DNS resolution...'; \
+    Test-NetConnection chocolatey.org -Port 443
+
+# Install Chocolatey
+RUN powershell -Command \
     Set-ExecutionPolicy Bypass -Scope Process -Force; \
     [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; \
-    Invoke-WebRequest https://chocolatey.org/install.ps1 -OutFile install.ps1; \
-    powershell.exe -ExecutionPolicy Bypass -File install.ps1; \
-    $env:Path = [System.Environment]::GetEnvironmentVariable('Path', 'Machine')
+    iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+
+
+# Refresh environment variables
+SHELL ["powershell", "-Command", "$env:Path = [System.Environment]::GetEnvironmentVariable('Path', 'Machine');"]
 
 # Install OpenJDK and Gradle
-RUN powershell.exe -Command \
-    $env:Path = 'C:\ProgramData\chocolatey\bin;' + $env:Path; \
-    choco install openjdk17 -y; \
-    choco install gradle -y
+RUN choco install openjdk --version=17.0.8 -y; choco install gradle -y
 
-# Install NSIS using direct download from GitHub
-RUN powershell.exe -Command \
-    Invoke-WebRequest -Uri "https://github.com/NSIS-Dev/nsis/releases/download/v3.10/nsis-3.10-setup.exe" -OutFile nsis-setup.exe; \
-    Start-Process -FilePath .\\nsis-setup.exe -ArgumentList '/S' -Wait; \
-    Remove-Item -Force .\\nsis-setup.exe
+# Install NSIS
 
+## Copy the installer from the local "download" directory into the container
+COPY download/nsis-3.10-setup.exe /app/nsis-setup.exe
+
+## Run the installer silently and then remove it
+RUN powershell -Command " \
+    Start-Process -FilePath '.\\nsis-setup.exe' -ArgumentList '/S' -NoNewWindow -Wait; \
+    Remove-Item -Force '.\\nsis-setup.exe'"
+
+# Copy application files
 COPY . /app
 
-# Build with Gradle using JAVA_HOME
-RUN powershell.exe -Command \
-    $env:Path = [System.Environment]::GetEnvironmentVariable('Path', 'Machine'); \
-    $env:JAVA_HOME = 'C:\Program Files\Java\jdk17'; \
+# Set JAVA_HOME and build with Gradle
+RUN $javaHomePath = (Get-ChildItem 'C:\Program Files\' -Directory | Where-Object { $_.Name -like 'OpenJDK*' }).FullName; \
+    if (-not $javaHomePath) { throw 'OpenJDK installation not found' }; \
+    [System.Environment]::SetEnvironmentVariable('JAVA_HOME', $javaHomePath, 'Machine'); \
+    [System.Environment]::SetEnvironmentVariable('Path', "$javaHomePath\bin;" + [System.Environment]::GetEnvironmentVariable('Path', 'Machine'), 'Machine'); \
+    gradle --version; \
     gradle clean build
