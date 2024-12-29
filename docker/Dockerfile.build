@@ -28,16 +28,43 @@ RUN choco install gradle -y
 # Install NSIS in C:\apps\NSIS
 COPY download/nsis-3.10-setup.exe /app/nsis-setup.exe
 RUN powershell -Command " \
-    $env:NSISDIR = 'C:\\apps\\NSIS'; \
     Start-Process -FilePath '.\\nsis-setup.exe' -ArgumentList '/S' -NoNewWindow -Wait; \
-    Remove-Item -Force '.\\nsis-setup.exe'"
+    Remove-Item -Force '.\\nsis-setup.exe';"
 
 # Copy application files
 COPY . /app
 
-# Run build with environment variables explicitly set
-RUN powershell -Command " \
-    $env:JAVA_HOME = 'C:\\apps\\java'; \
-    $env:PATH = \"$env:PATH;C:\\apps\\java\\bin;\"\"C:\\apps\\NSIS\"\"\"; \
-    ./build.bat"
+# Set environment variables
+ENV GRADLE_COMPOSE_IMAGE_CMD="gradle createBaseDiskImage --info --stacktrace"
+ENV GRADLE_BUILD_INSTALLER_CMD="gradle createInstaller --info --stacktrace"
+ENV SOLR_CMD="installer_image\\solr-8.11.4\\bin\\solr.cmd stop -p 8983"
 
+# Run Gradle command to create base disk image
+RUN powershell -Command "Write-Host 'Running: $GRADLE_COMPOSE_IMAGE_CMD'; \
+    $GRADLE_COMPOSE_IMAGE_CMD; \
+    if ($LASTEXITCODE -ne 0) { \
+        Write-Host 'Gradle compose image command failed.'; \
+        exit 1 \
+    }"
+
+# Stop Solr
+RUN powershell -Command "Write-Host 'Running: $SOLR_CMD'; \
+    $SOLR_CMD; \
+    if ($LASTEXITCODE -ne 0) { \
+        Write-Host 'Stop Solr command failed.'; \
+        exit 1 \
+    }"
+
+# Build installer
+RUN powershell -Command "Write-Host 'Running: $GRADLE_BUILD_INSTALLER_CMD'; \
+    $GRADLE_BUILD_INSTALLER_CMD; \
+    if ($LASTEXITCODE -ne 0) { \
+        Write-Host 'Gradle build command failed.'; \
+        exit 1 \
+    }"
+	
+# Poor man's debugging
+RUN Get-ChildItem -Recurse -File | ForEach-Object {$_.FullName}
+
+# Final message
+CMD ["echo", "Build completed successfully."]

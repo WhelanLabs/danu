@@ -18,14 +18,12 @@ Organizations often handle sensitive or proprietary data that cannot be shared e
 
 ### Build Environment Prerequisites
 Ensure the following tools are installed and added to your system's PATH before building Danu AI:
-- **Java v1.8+**
-- **Gradle**
-- **NSIS**: [Download NSIS 3.10](https://sourceforge.net/projects/nsis/files/NSIS%203/3.10/nsis-3.10-setup.exe/download)
+- **Docker Desktop**
 
 ### Build Steps
 1. Navigate to the project’s root directory.
 2. Run the following command:
-   ```bash
+   ```DOS
    build.bat
    ```
 
