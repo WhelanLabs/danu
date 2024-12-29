@@ -13,30 +13,31 @@ RUN powershell -Command \
     [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; \
     iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 
-
 # Refresh environment variables
 SHELL ["powershell", "-Command", "$env:Path = [System.Environment]::GetEnvironmentVariable('Path', 'Machine');"]
 
-# Install OpenJDK and Gradle
-RUN choco install openjdk --version=17.0.8 -y; choco install gradle -y
+# Install OpenJDK
+RUN choco install openjdk -y --params="'/InstallationPath:C:\apps\java'"; \
+    refreshenv; \
+    Write-Host 'JAVA_HOME:' $env:JAVA_HOME; \
+    Write-Host 'PATH:' $env:PATH
 
-# Install NSIS
+# Install Gradle
+RUN choco install gradle -y
 
-## Copy the installer from the local "download" directory into the container
+# Install NSIS in C:\apps\NSIS
 COPY download/nsis-3.10-setup.exe /app/nsis-setup.exe
-
-## Run the installer silently and then remove it
 RUN powershell -Command " \
+    $env:NSISDIR = 'C:\\apps\\NSIS'; \
     Start-Process -FilePath '.\\nsis-setup.exe' -ArgumentList '/S' -NoNewWindow -Wait; \
     Remove-Item -Force '.\\nsis-setup.exe'"
 
 # Copy application files
 COPY . /app
 
-# Set JAVA_HOME and build
-RUN $javaHomePath = (Get-ChildItem 'C:\Program Files\' -Directory | Where-Object { $_.Name -like 'OpenJDK*' }).FullName; `
-    if (-not $javaHomePath) { throw 'OpenJDK installation not found' }; `
-    [System.Environment]::SetEnvironmentVariable('JAVA_HOME', $javaHomePath, 'Machine'); `
-    [System.Environment]::SetEnvironmentVariable('Path', "$javaHomePath\bin;" + [System.Environment]::GetEnvironmentVariable('Path', 'Machine'), 'Machine'); `
-    gradle --version; `
-    .\build.bat
+# Run build with environment variables explicitly set
+RUN powershell -Command " \
+    $env:JAVA_HOME = 'C:\\apps\\java'; \
+    $env:PATH = \"$env:PATH;C:\\apps\\java\\bin;\"\"C:\\apps\\NSIS\"\"\"; \
+    ./build.bat"
+

@@ -16,5 +16,8 @@ if not defined CYGWIN_PATH (
 :: Add the Cygwin bin directory to the PATH
 set PATH=%CYGWIN_PATH%\bin;%PATH%
 
-:: Call the BASH script
-bash -l -c "$(cygpath -u "%~dp0crawl.sh")"
+:: Convert the current script directory to Linux path format
+for /f "delims=" %%P in ('cygpath -u "%~dp0crawl.sh"') do set LINUX_SCRIPT_PATH=%%P
+
+:: Call the BASH script using the converted path
+bash -l -c "%LINUX_SCRIPT_PATH%"
