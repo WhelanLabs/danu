@@ -1,70 +1,74 @@
+# Base Windows Server Core Image
 FROM mcr.microsoft.com/windows/servercore:ltsc2022
+
+# Set working directory
 WORKDIR /app
 
 # Configure DNS and test connectivity
 RUN powershell -Command \
-    Set-DnsClientServerAddress -InterfaceAlias Ethernet* -ServerAddresses ("8.8.8.8", "8.8.4.4"); \
-    Write-Host 'Testing DNS resolution...'; \
-    Test-NetConnection chocolatey.org -Port 443
+  Set-DnsClientServerAddress -InterfaceAlias Ethernet* -ServerAddresses ("8.8.8.8", "8.8.4.4"); \
+  Write-Host 'Testing DNS resolution...'; \
+  Test-NetConnection chocolatey.org -Port 443
 
 # Install Chocolatey
 RUN powershell -Command \
-    Set-ExecutionPolicy Bypass -Scope Process -Force; \
-    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; \
-    iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-
-# Refresh environment variables
-SHELL ["powershell", "-Command", "$env:Path = [System.Environment]::GetEnvironmentVariable('Path', 'Machine');"]
+  Set-ExecutionPolicy Bypass -Scope Process -Force; \
+  [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; \
+  iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 
 # Install OpenJDK
-RUN choco install openjdk -y --params="'/InstallationPath:C:\apps\java'"; \
-    refreshenv; \
-    Write-Host 'JAVA_HOME:' $env:JAVA_HOME; \
-    Write-Host 'PATH:' $env:PATH
+RUN powershell -Command \
+  choco install openjdk -y --params="'/InstallationPath:C:\apps\java'"; \
+  refreshenv; \
+  Write-Host 'JAVA_HOME:' $env:JAVA_HOME; \
+  Write-Host 'PATH:' $env:PATH
 
 # Install Gradle
-RUN choco install gradle -y
+RUN powershell -Command \
+  choco install gradle -y
 
-# Install NSIS in C:\apps\NSIS
+# Download and install NSIS
 COPY download/nsis-3.10-setup.exe /app/nsis-setup.exe
 RUN powershell -Command " \
-    Start-Process -FilePath '.\\nsis-setup.exe' -ArgumentList '/S' -NoNewWindow -Wait; \
-    Remove-Item -Force '.\\nsis-setup.exe';"
+  Start-Process -FilePath '.\\nsis-setup.exe' -ArgumentList '/S' -NoNewWindow -Wait; \
+  Remove-Item -Force '.\\nsis-setup.exe';"
 
-# Copy application files
+# Copy application files from build context
 COPY . /app
 
 # Set environment variables
-ENV GRADLE_COMPOSE_IMAGE_CMD="gradle createBaseDiskImage --info --stacktrace"
+# ENV GRADLE_COMPOSE_IMAGE_CMD="gradle createBaseDiskImage --info --stacktrace"
+ENV GRADLE_COMPOSE_IMAGE_CMD="gradle createBaseDiskImage --info --stacktrace --debug --console=plain"
+
 ENV GRADLE_BUILD_INSTALLER_CMD="gradle createInstaller --info --stacktrace"
 ENV SOLR_CMD="installer_image\\solr-8.11.4\\bin\\solr.cmd stop -p 8983"
 
 # Run Gradle command to create base disk image
 RUN powershell -Command "Write-Host 'Running: $GRADLE_COMPOSE_IMAGE_CMD'; \
-    $GRADLE_COMPOSE_IMAGE_CMD; \
-    if ($LASTEXITCODE -ne 0) { \
-        Write-Host 'Gradle compose image command failed.'; \
-        exit 1 \
-    }"
+  $GRADLE_COMPOSE_IMAGE_CMD; \
+  if ($LASTEXITCODE -ne 0) { \
+    Write-Host 'Gradle compose image command failed.'; \
+    exit 1 \
+  }"
 
 # Stop Solr
 RUN powershell -Command "Write-Host 'Running: $SOLR_CMD'; \
-    $SOLR_CMD; \
-    if ($LASTEXITCODE -ne 0) { \
-        Write-Host 'Stop Solr command failed.'; \
-        exit 1 \
-    }"
+  $SOLR_CMD; \
+  if ($LASTEXITCODE -ne 0) { \
+    Write-Host 'Stop Solr command failed.'; \
+    exit 1 \
+  }"
 
 # Build installer
 RUN powershell -Command "Write-Host 'Running: $GRADLE_BUILD_INSTALLER_CMD'; \
-    $GRADLE_BUILD_INSTALLER_CMD; \
-    if ($LASTEXITCODE -ne 0) { \
-        Write-Host 'Gradle build command failed.'; \
-        exit 1 \
-    }"
-	
-# Poor man's debugging
+  $GRADLE_BUILD_INSTALLER_CMD; \
+  if ($LASTEXITCODE -ne 0) { \
+    Write-Host 'Gradle build command failed.'; \
+    exit 1 \
+  }"
+
+# Inspect all generated files
 RUN Get-ChildItem -Recurse -File | ForEach-Object {$_.FullName}
 
-# Final message
-CMD ["echo", "Build completed successfully."]
+# Final CMD
+CMD ["cmd", "/c", "echo Build completed successfully."]

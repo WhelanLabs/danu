@@ -33,7 +33,7 @@ Copy code
 3. Save the settings and restart Docker.
 
 #### Accessing the inards of the build image
-??? docker run -it danu-ai-build
+docker run -it danu-ai-build powershell
 
 
 ## Run commands
