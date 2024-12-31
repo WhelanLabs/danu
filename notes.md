@@ -19,7 +19,6 @@ gradle downloadAll
 
 #### Build the installer
 docker build -f docker/Dockerfile.build -t danu-ai-build .
-docker run --rm -it danu-ai-build cmd
 
 ⚠ ** Note:** By default, Docker uses the DNS settings from the host. If the host's DNS isn't working well with Docker, you can specify an alternative.
 
