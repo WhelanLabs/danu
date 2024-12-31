@@ -18,6 +18,7 @@ gradle downloadAll
 ### testing the docker workflow jobs
 
 #### Build the installer
+docker network create my-network --dns 8.8.8.8 --dns 8.8.4.4
 docker build -f docker/Dockerfile.build -t danu-ai-build .
 
 ⚠ ** Note:** By default, Docker uses the DNS settings from the host. If the host's DNS isn't working well with Docker, you can specify an alternative.

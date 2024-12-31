@@ -41,7 +41,10 @@ Releases are listed in ascending cronological order.
   
 ## WIP
 
-* build initial testing framework
+* Investagate using MS Hyper-V for building the installer.
+  - https://www.youtube.com/watch?v=3I64TeJ4iNI
+
+* create initial build and test framework
 
 ## Backlog
 
