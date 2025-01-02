@@ -39,12 +39,18 @@ Releases are listed in ascending cronological order.
   2. describe the "why" of the project
   3. describe how to build it
   
-## WIP
-
 * Investagate using MS Hyper-V for building the installer.
   - https://www.youtube.com/watch?v=3I64TeJ4iNI
+  
+## WIP
 
-* create initial build and test framework
+* create a hyper-v based build process
+  - create vm_based_build.bat
+  - update README.md and notes.md
+
+* create a hyper-v based install process for testing
+
+
 
 ## Backlog
 
