@@ -3,8 +3,8 @@ REM Define variables
 set VM_NAME=MyVM_%RANDOM%
 set VM_PATH=C:\HyperV\%VM_NAME%
 set VHD_PATH=C:\HyperV\%VM_NAME%\%VM_NAME%.vhdx
-set ISO_PATH=C:\ISOs\Windows11_Pro.iso
-set DIRECTORY_PATH=C:\Scripts
+set ISO_PATH=.\download\Windows11_Pro.iso
+set DIRECTORY_PATH=.\
 set RETURN_FILE_PATH=C:\Danu\out\DanuAI_Installer.exe
 set HOST_DESTINATION=.\out\DanuAI_Installer.exe
 set ISO_DOWNLOAD_URL=https://software-download.microsoft.com/Windows11_Pro.iso

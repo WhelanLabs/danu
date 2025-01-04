@@ -89,7 +89,9 @@ Releases are listed in ascending cronological order.
 
 * The gradle code for Solr start and stop is a clusterfuck.  Clean it up.
 
+* bundle Java with the installer? Can NSIS both include and be dependent on Java?
 
+* Have the installer install Cygwin if not already on the machine. Or, possible buncle a private version.
   
 * Have the decompression to the install image result in a version agnostic disk image -
   for example, replace "[danu]\installer_image\hadoop-3.4.1\" with
