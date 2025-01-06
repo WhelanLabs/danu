@@ -33,7 +33,9 @@ Ensure the following tools are installed and added to your system's PATH before 
 
 > **Note**  
 > Danu also supports an advanced mode of being built using a Hyper-V VM which requires Hyper-V be installed
-> on the host machine. To build using Hyper-V, run "vm_based_build.bat" instead of "build.bat".
+> on the host machine. To build using Hyper-V, open a powershell window, and run "vm_based_build.bat" instead of "build.bat".
+> The Hyper-V based build requires that `Win11_24H2_English_x64.iso' be located in the download directory. The ISO image can
+> be manually downloaded from https://www.microsoft.com/en-us/software-download/windows11.
 
 #### Build Notes
 - The download step may occasionally fail to fetch Apache dependencies, possibly due to Apache CDN issues. 

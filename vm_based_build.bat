@@ -36,7 +36,6 @@ REM Create Hyper-V virtual machine
 echo Creating Hyper-V virtual machine...
 powershell -Command "New-VM -Name '%VM_NAME%' -MemoryStartupBytes 2GB -Path '%VM_PATH%' -Generation 2 -ErrorAction Stop" || (
     echo Failed to create the virtual machine. Ensure that Hyper-V is enabled on your system.
-    echo To enable Hyper-V, go to 'Turn Windows features on or off' and enable 'Hyper-V'.
     exit /b 1
 )
 
@@ -66,8 +65,10 @@ echo Setting boot order...
 powershell -Command "
     $vmDvd = Get-VMDvdDrive -VMName '%VM_NAME%' -ErrorAction Stop;
     $vmHdd = Get-VMHardDiskDrive -VMName '%VM_NAME%' -ErrorAction Stop;
-    if (-not $vmDvd -or -not $vmHdd) { Write-Error 'Failed to retrieve boot devices'; exit 1 }
-    Set-VMFirmware -VMName '%VM_NAME%' -FirstBootDevice $vmDvd" || (
+    if (-not $vmDvd) { Write-Error 'DVD drive not found for VM'; exit 1 }
+    if (-not $vmHdd) { Write-Error 'Hard disk drive not found for VM'; exit 1 }
+    Set-VMFirmware -VMName '%VM_NAME%' -FirstBootDevice $vmDvd;
+" || (
     echo Failed to set boot order. The VM may not boot from the installation media.
     exit /b 1
 )
@@ -95,37 +96,4 @@ if %errorlevel% neq 0 (
     goto wait_for_os
 )
 
-REM Copy directory to the VM
-echo Copying directory to the virtual machine...
-powershell -Command "
-    if (!(Get-VMIntegrationService -VMName '%VM_NAME%' | Where-Object Enabled)) {
-        Write-Error 'Integration Services not enabled'; exit 1
-    }
-    Copy-VMFile -Name '%VM_NAME%' -SourcePath '%DIRECTORY_PATH%' -DestinationPath 'C:\\Danu' -FileSource Host -Recurse -ErrorAction Stop" || (
-    echo Failed to copy the directory to the virtual machine. Ensure that integration services are enabled on the VM.
-    exit /b 1
-)
-
-REM Run the build.bat file on the VM
-echo Running the build.bat file on the virtual machine...
-powershell -Command "Invoke-VMScript -VMName '%VM_NAME%' -ScriptText 'cmd /c C:\\Danu\\build.bat' -ErrorAction Stop" || (
-    echo Failed to run the build.bat file on the virtual machine. Ensure that the file exists and is configured correctly.
-    exit /b 1
-)
-
-REM Copy file from VM to host
-echo Copying output file from the virtual machine to the host...
-powershell -Command "Copy-VMFile -Name '%VM_NAME%' -SourcePath '%RETURN_FILE_PATH%' -DestinationPath '%HOST_DESTINATION%' -FileSource Guest -ErrorAction Stop" || (
-    echo Failed to copy the file from the virtual machine. Verify the file path and ensure integration services are enabled.
-    exit /b 1
-)
-
-REM Delete the VM if file copy was successful
-echo Deleting the virtual machine...
-powershell -Command "Remove-VM -Name '%VM_NAME%' -Force -RemoveVHD -ErrorAction Stop" || (
-    echo Failed to delete the virtual machine. Use Hyper-V Manager to manually remove the VM.
-    exit /b 1
-)
-
-echo VM setup, script execution, file retrieval, and cleanup complete.
-exit /b 0
+REM Further steps...
