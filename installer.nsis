@@ -53,11 +53,6 @@ Section "Install"
   WriteUninstaller "$INSTDIR\Uninstall.exe"
 SectionEnd
 
-; Post-installation Section
-Section -PostInstall
-  ; Additional normal actions post-install
-SectionEnd
-
 ; Port checking function for uninstallation
 Function un.CheckPort8983
   ; Create a temporary file for netstat output
