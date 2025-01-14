@@ -1,18 +1,25 @@
+; DanuAI Installer Script
+; Includes port checking for uninstallation
+
+; Basic Settings
 Outfile "./out/DanuAI_Installer.exe"
 InstallDir "$PROGRAMFILES\DanuAI"
 InstallDirRegKey HKLM "Software\DanuAI" "InstallPath"
 
 Name "DanuAI Installer"
 
+; Pages
 Page custom WelcomePage
 Page Directory
 Page InstFiles
 UninstPage InstFiles
 
+; Welcome page function
 Function WelcomePage
   MessageBox MB_OK "Welcome to the DanuAI Installer! $\nApplication: DanuAI $\nVersion: 1.0 $\nLicense: AGPL 3.0 $\n $\nBy proceeding, you agree to install this application under the terms of the AGPL 3.0 license."
 FunctionEnd
 
+; Function to validate installation path
 Function ValidateSpaceInPath
     StrCpy $0 "$INSTDIR"
     StrLen $1 $0
@@ -33,6 +40,7 @@ Function ValidateSpaceInPath
         ; Path is fine, continue with installation
 FunctionEnd
 
+; Installation Section
 Section "Install"
   Call ValidateSpaceInPath
   SetOutPath "$INSTDIR"
@@ -45,11 +53,44 @@ Section "Install"
   WriteUninstaller "$INSTDIR\Uninstall.exe"
 SectionEnd
 
+; Post-installation Section
 Section -PostInstall
   ; Additional normal actions post-install
 SectionEnd
 
+; Port checking function for uninstallation
+Function un.CheckPort8983
+  ; Create a temporary file for netstat output
+  GetTempFileName $R0
+  
+  ; Run netstat and save output to temp file
+  nsExec::ExecToStack 'cmd /c netstat -an | find "8983" > "$R0"'
+  Pop $R1 ; Return value
+  
+  ; Read the temp file
+  FileOpen $R1 "$R0" r
+  FileRead $R1 $R2
+  FileClose $R1
+  
+  ; Delete temp file
+  Delete "$R0"
+  
+  ; Check if port 8983 was found
+  StrCmp $R2 "" port_free port_in_use
+  
+  port_in_use:
+    MessageBox MB_ICONSTOP "Cannot uninstall - A service is running on port 8983.$\nPlease stop the service before uninstalling."
+    Abort
+    
+  port_free:
+    ; Continue with uninstallation
+FunctionEnd
+
+; Uninstallation Section
 Section "Uninstall"
+  ; Check for running service before proceeding
+  Call un.CheckPort8983
+  
   ; Remove installed files
   RMDir /r "$INSTDIR"
 
